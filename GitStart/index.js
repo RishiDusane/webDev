@@ -16,6 +16,8 @@ const thanks = document.getElementById('thanks');
 
 thanks.innerHTML = '<p>Please visit us again</p>'
 // Write your code below:
+
+//getElementsByClassName returns an HTMLCollection of elements with the specified class name.
 const fruits = document.getElementsByClassName('fruit')
 
 fruits[2].style.backgroundColor = 'yellow';
