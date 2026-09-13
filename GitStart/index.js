@@ -25,3 +25,11 @@ fruits[2].style.backgroundColor = 'yellow';
 for (let i = 0; i < fruits.length; i++){
     fruits[i].style.fontWeight = 'bold';
 }
+// Write your code below:
+const listItems = document.getElementsByTagName('li');
+
+for (let i = 0; i < listItems.length; i++){
+    listItems[i].style.fontStyle = 'italic';
+}
+
+listItems[4].style.color = 'red';
