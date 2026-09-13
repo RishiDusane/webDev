@@ -71,3 +71,22 @@ for (let i = 0; i < oddFruits.length; i++) {
     oddFruits[i].style.padding = '5px';
     oddFruits[i].style.borderRadius = '5px';
 }
+
+//Creating elements and DOM relations
+// Write your code below:
+const h3 = document.createElement('h3');
+h3.textContent = 'Buy high quality organic fruits online';
+h3.style.fontStyle = 'italic';
+
+const divs = document.getElementsByTagName('div');
+const firstDiv = divs[0];
+firstDiv.appendChild(h3);
+
+const para = document.createElement('p');
+const paraText = document.createTextNode('Total fruits: 4');
+para.appendChild(paraText);
+para.id = 'fruits-total';
+
+const secondDiv = divs[1];
+const fruits = document.querySelector('.fruits');
+secondDiv.insertBefore(para, fruits);
