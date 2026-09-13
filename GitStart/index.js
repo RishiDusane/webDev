@@ -33,3 +33,41 @@ for (let i = 0; i < listItems.length; i++){
 }
 
 listItems[4].style.color = 'red';
+
+//Query Selector and Query Selector All
+// Write the code as shown in the video below:
+const mainHeading = document.querySelector('#main-heading');
+
+mainHeading.style.textAlign = 'end';
+
+const basketHeading = document.querySelector('#basket-heading');
+
+basketHeading.style.color = 'brown';
+basketHeading.style.marginLeft = '30px';
+
+const fruits = document.querySelector('.fruits');
+
+fruits.style.backgroundColor = 'gray';
+fruits.style.padding = '30px';
+fruits.style.margin = '30px';
+fruits.style.width = '50%';
+fruits.style.borderRadius = '5px';
+fruits.style.listStyleType = 'none';
+
+
+// Write answer to the questions asked below:
+const evenFruits = document.querySelectorAll('.fruit:nth-child(even)');
+for (let i = 0; i < evenFruits.length; i++){
+    evenFruits[i].style.backgroundColor = 'brown';
+    evenFruits[i].style.color = 'white';
+    evenFruits[i].style.padding = '5px';
+    evenFruits[i].style.borderRadius = '5px';
+}
+
+const oddFruits = document.querySelectorAll('.fruit:nth-child(odd)');
+for (let i = 0; i < oddFruits.length; i++) {
+    oddFruits[i].style.backgroundColor = 'lightgray';
+    oddFruits[i].style.color = 'black';
+    oddFruits[i].style.padding = '5px';
+    oddFruits[i].style.borderRadius = '5px';
+}
