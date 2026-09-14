@@ -5,6 +5,7 @@ const form = document.querySelector('form');
 const fruitsList = document.querySelector('ul');
 const input = document.querySelector('#fruit-to-add');
 const filterInput = document.querySelector('#filter');
+const fruitItems = Array.from(fruitsList.querySelectorAll('.fruit'));
 const descriptionInput = document.createElement('input');
 descriptionInput.type = 'text';
 descriptionInput.id = 'description';
@@ -48,7 +49,8 @@ form.addEventListener('submit', function (event) {
     newLi.appendChild(deleteBtn);
     newLi.appendChild(editBtn);
 
-    fruitsList.appendChild(newLi);
+    fruitItems.push(newLi);
+    renderFruits(filterInput.value);
 
     input.value = '';
     descriptionInput.value = '';
@@ -56,19 +58,32 @@ form.addEventListener('submit', function (event) {
 
 // Filter fruits by their name or description
 filterInput.addEventListener('input', function (event) {
-    const searchText = event.target.value.toLowerCase();
-
-    fruitsList.querySelectorAll('.fruit').forEach(function (fruit) {
-        fruit.style.display = fruit.textContent.toLowerCase().includes(searchText)
-            ? 'flex'
-            : 'none';
-    });
+    renderFruits(event.target.value);
 });
+
+function renderFruits(searchValue) {
+    const searchText = searchValue.toLowerCase();
+
+    while (fruitsList.firstChild) {
+        fruitsList.removeChild(fruitsList.firstChild);
+    }
+
+    fruitItems.forEach(function (fruit) {
+        const name = fruit.querySelector('span')?.textContent || fruit.childNodes[0].textContent;
+        const description = fruit.querySelector('p')?.textContent || '';
+        const matches = `${name} ${description}`.toLowerCase().includes(searchText);
+
+        if (matches) {
+            fruitsList.appendChild(fruit);
+        }
+    });
+}
 
 // Delete fruit
 fruitsList.addEventListener('click', function (event) {
     if (event.target.classList.contains('delete-btn')) {
         const liToDelete = event.target.parentElement;
+        fruitItems.splice(fruitItems.indexOf(liToDelete), 1);
         fruitsList.removeChild(liToDelete);
     }
 });
