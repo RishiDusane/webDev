@@ -1,80 +1,81 @@
+if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", initialize);
+}
+
+function initialize() {
+    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
+
+    usersList.forEach(display);
+}
+
 function handleFormSubmit(event) {
     event.preventDefault();
 
     const userDetails = {
+        id: Date.now(),
         username: event.target.username.value,
         email: event.target.email.value,
         phone: event.target.phone.value,
-
     };
-    localStorage.setItem(userDetails.email,
-        JSON.stringify(userDetails));
 
-    showUserOnScreen(userDetails);
+    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
+    usersList.push(userDetails);
+    localStorage.setItem("usersList", JSON.stringify(usersList));
+
+    display(userDetails);
 
     if (typeof event.target.reset === "function") {
         event.target.reset();
     }
 }
 
-function getUsersFromLocalStorage() {
-    const users = [];
-
-    for (let index = 0; index < localStorage.length; index += 1) {
-        const key = localStorage.key(index);
-        const storedUser = localStorage.getItem(key);
-
-        try {
-            const user = JSON.parse(storedUser);
-            if (user && user.username && user.email && user.phone) {
-                users.push(user);
-            }
-        } catch (error) {
-            // Ignore unrelated non-JSON localStorage entries.
-        }
+function getListElement() {
+    if (typeof document === "undefined") {
+        return null;
     }
 
-    return users;
+    return document.getElementById("listOfUsers") || document.querySelector("ul");
 }
 
-function showUserOnScreen(user) {
-    const parentElem = document.getElementById("listOfUsers");
-    const childElem = document.createElement("li");
+function display(user) {
+    const parentElement = getListElement();
 
-    childElem.textContent = `Username: ${user.username}, Email: ${user.email}, Phone: ${user.phone}`;
+    if (!parentElement) {
+        return;
+    }
+
+    const listItem = document.createElement("li");
+    listItem.textContent = `Username: ${user.username}, Email: ${user.email}, Phone: ${user.phone}`;
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
     deleteButton.className = "delete-btn";
+    deleteButton.addEventListener("click", function () {
+        deleteData(user.id, listItem);
+    });
 
-    deleteButton.onclick = () => {
-        localStorage.removeItem(user.email);
-
-        parentElem.removeChild(childElem);
-
-    };
-
-    childElem.appendChild(deleteButton);
-
-    parentElem.appendChild(childElem);
+    listItem.appendChild(deleteButton);
+    parentElement.appendChild(listItem);
 }
 
-function displayStoredUsers() {
-    const parentElem = document.getElementById("listOfUsers");
+function deleteData(id, listItem) {
+    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
+    const updatedUsersList = [];
 
-    if (!parentElem) {
-        return;
+    for (let index = 0; index < usersList.length; index += 1) {
+        if (usersList[index].id !== id) {
+            updatedUsersList.push(usersList[index]);
+        }
     }
 
-    parentElem.innerHTML = "";
-
-    getUsersFromLocalStorage().forEach(showUserOnScreen);
+    localStorage.setItem("usersList", JSON.stringify(updatedUsersList));
+    listItem.remove();
 }
-
-displayStoredUsers();
 
 if (typeof module !== "undefined") {
     module.exports = handleFormSubmit;
     module.exports.handleFormSubmit = handleFormSubmit;
-    module.exports.getUsersFromLocalStorage = getUsersFromLocalStorage;
+    module.exports.initialize = initialize;
+    module.exports.display = display;
+    module.exports.deleteData = deleteData;
 }
