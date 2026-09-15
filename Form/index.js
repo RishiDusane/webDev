@@ -1,81 +1,114 @@
 if (typeof document !== "undefined") {
-    document.addEventListener("DOMContentLoaded", initialize);
+	document.addEventListener("DOMContentLoaded", initialize);
+}
+
+function getUsers() {
+	return JSON.parse(localStorage.getItem("usersList") || "[]");
+}
+
+function getList() {
+	return document.getElementById("listOfUsers") || document.querySelector("ul");
 }
 
 function initialize() {
-    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
-
-    usersList.forEach(display);
+	getUsers().forEach(display);
 }
 
-function handleFormSubmit(event) {
-    event.preventDefault();
+function handleSubmit(event) {
+	event.preventDefault();
 
-    const userDetails = {
-        id: Date.now(),
-        username: event.target.username.value,
-        email: event.target.email.value,
-        phone: event.target.phone.value,
-    };
+	if (sessionStorage.getItem("editId")) {
+		update(event);
+	} else {
+		addData(event);
+	}
 
-    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
-    usersList.push(userDetails);
-    localStorage.setItem("usersList", JSON.stringify(usersList));
-
-    display(userDetails);
-
-    if (typeof event.target.reset === "function") {
-        event.target.reset();
-    }
+	if (typeof event.target.reset === "function") {
+		event.target.reset();
+	}
 }
 
-function getListElement() {
-    if (typeof document === "undefined") {
-        return null;
-    }
-
-    return document.getElementById("listOfUsers") || document.querySelector("ul");
+function addData(event) {
+	const form = event.target;
+	const user = {
+		id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+		username: form.username.value,
+		email: form.email.value,
+		phone: form.phone.value,
+	};
+	const usersList = getUsers();
+	usersList.push(user);
+	localStorage.setItem("usersList", JSON.stringify(usersList));
+	display(user);
 }
 
 function display(user) {
-    const parentElement = getListElement();
+	const list = getList();
+	if (!list) return;
 
-    if (!parentElement) {
-        return;
-    }
+	const listItem = document.createElement("li");
+	listItem.dataset.userId = user.id;
+	listItem.appendChild(document.createTextNode(
+		`${user.username} ${user.email} ${user.phone}`
+	));
 
-    const listItem = document.createElement("li");
-    listItem.textContent = `Username: ${user.username}, Email: ${user.email}, Phone: ${user.phone}`;
+	const editButton = document.createElement("button");
+	editButton.textContent = "Edit";
+	editButton.className = "edit-btn";
+	editButton.addEventListener("click", () => edit(user));
 
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.className = "delete-btn";
-    deleteButton.addEventListener("click", function () {
-        deleteData(user.id, listItem);
-    });
+	const deleteButton = document.createElement("button");
+	deleteButton.textContent = "Delete";
+	deleteButton.className = "delete-btn";
+	deleteButton.addEventListener("click", () => deleteData(user.id, listItem));
 
-    listItem.appendChild(deleteButton);
-    parentElement.appendChild(listItem);
+	listItem.appendChild(editButton);
+	listItem.appendChild(deleteButton);
+	list.appendChild(listItem);
+}
+
+function edit(user) {
+	document.getElementById("username").value = user.username;
+	document.getElementById("email").value = user.email;
+	document.getElementById("phone").value = user.phone;
+	sessionStorage.setItem("editId", user.id);
+}
+
+function update(event) {
+	const id = sessionStorage.getItem("editId");
+	const form = event.target;
+	const usersList = getUsers().map(user => String(user.id) === String(id) ? {
+		...user,
+		username: form.username.value,
+		email: form.email.value,
+		phone: form.phone.value,
+	} : user);
+
+	localStorage.setItem("usersList", JSON.stringify(usersList));
+	sessionStorage.removeItem("editId");
+
+	const list = getList();
+	if (list) {
+		list.innerHTML = "";
+		usersList.forEach(display);
+	}
 }
 
 function deleteData(id, listItem) {
-    const usersList = JSON.parse(localStorage.getItem("usersList") || "[]");
-    const updatedUsersList = [];
-
-    for (let index = 0; index < usersList.length; index += 1) {
-        if (usersList[index].id !== id) {
-            updatedUsersList.push(usersList[index]);
-        }
-    }
-
-    localStorage.setItem("usersList", JSON.stringify(updatedUsersList));
-    listItem.remove();
+	const usersList = getUsers().filter(user => user.id !== id);
+	localStorage.setItem("usersList", JSON.stringify(usersList));
+	listItem.remove();
 }
 
 if (typeof module !== "undefined") {
-    module.exports = handleFormSubmit;
-    module.exports.handleFormSubmit = handleFormSubmit;
-    module.exports.initialize = initialize;
-    module.exports.display = display;
-    module.exports.deleteData = deleteData;
+	module.exports = handleSubmit;
+	module.exports.handleSubmit = handleSubmit;
+	module.exports.handleFormSubmit = handleSubmit;
+	module.exports.initialize = initialize;
+	module.exports.display = display;
+	module.exports.addData = addData;
+	module.exports.deleteData = deleteData;
+	module.exports.edit = edit;
+	module.exports.update = update;
+	module.exports.editData = edit;
 }
