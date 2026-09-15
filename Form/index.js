@@ -61,6 +61,11 @@ function showUserOnScreen(user) {
 
 function displayStoredUsers() {
     const parentElem = document.getElementById("listOfUsers");
+
+    if (!parentElem) {
+        return;
+    }
+
     parentElem.innerHTML = "";
 
     getUsersFromLocalStorage().forEach(showUserOnScreen);
